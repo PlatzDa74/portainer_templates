@@ -1,25 +1,34 @@
 version: "3"
 
+volumes:
+  files:
+    driver: local
+  mysql:
+    driver: local
+  redis:
+    driver: local
+
 services:
   owncloud:
     image: owncloud/server:${OWNCLOUD_VERSION}
     container_name: owncloud_server
     restart: always
     ports:
-      - ${HTTP_PORT}:8080
+      - 8080:8080
+      - 443:443
     depends_on:
       - mariadb
       - redis
     environment:
-      - OWNCLOUD_DOMAIN=${OWNCLOUD_DOMAIN}
-      - OWNCLOUD_TRUSTED_DOMAINS=${OWNCLOUD_TRUSTED_DOMAINS}
+      - OWNCLOUD_DOMAIN=localhost:8080
+      - OWNCLOUD_TRUSTED_DOMAINS=localhost,localhost.fritz.box,server-1,server-1.fritz.box,server-2,server-2.fritz.box,fritz.box,owncloud,owncloud.fritz.box
       - OWNCLOUD_DB_TYPE=mysql
       - OWNCLOUD_DB_NAME=owncloud
       - OWNCLOUD_DB_USERNAME=owncloud
       - OWNCLOUD_DB_PASSWORD=owncloud
       - OWNCLOUD_DB_HOST=mariadb
-      - OWNCLOUD_ADMIN_USERNAME=${ADMIN_USERNAME}
-      - OWNCLOUD_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - OWNCLOUD_ADMIN_USERNAME=admin
+      - OWNCLOUD_ADMIN_PASSWORD=admin
       - OWNCLOUD_MYSQL_UTF8MB4=true
       - OWNCLOUD_REDIS_ENABLED=true
       - OWNCLOUD_REDIS_HOST=redis
@@ -29,7 +38,7 @@ services:
       timeout: 10s
       retries: 5
     volumes:
-      - /ssd/Podman/pods/owncloud-server:/mnt/data:z
+      - files:/mnt/data
 
   mariadb:
     image: mariadb:10.11 # minimum required ownCloud version is 10.9
@@ -48,7 +57,7 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - /ssd/Podman/pods/owncloud-mariadb:/var/lib/mysql:z
+      - mysql:/var/lib/mysql
 
   redis:
     image: redis:6
@@ -61,4 +70,4 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - /ssd/Podman/pods/owncloud-redis:/data:z
+      - redis:/data

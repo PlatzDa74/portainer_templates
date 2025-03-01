@@ -10,8 +10,8 @@ Environment=PODMAN_SYSTEMD_UNIT=%n
 Restart=on-failure
 TimeoutStopSec=70
 RemainAfterExit=yes
-ExecStart=/bin/bash -c "podman compose -f /ssd/Podman/config/owncloud/docker-compose.yml up --detach"
-ExecStop=/bin/bash -c "podman compose -f /ssd/Podman/config/owncloud/docker-compose.yml stop"
+ExecStart=/bin/bash -c "podman compose -f /ssd/Portainer/Templates/owncloud/docker-compose.yml up --detach"
+ExecStop=/bin/bash -c "podman compose -f /ssd/Portainer/Templates/owncloud/docker-compose.yml stop"
 Type=forking
 
 [Install]
