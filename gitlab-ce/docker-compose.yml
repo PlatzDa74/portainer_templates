@@ -1,0 +1,46 @@
+version: '3.7'
+
+volumes:
+  gitlab-etc_gitlab:
+    driver: local
+  gitlab-var_opt_gitlab:
+    driver: local
+  gitlab-var_log_gitlab:
+    driver: local
+  gitlab-runner_etc_gitlab-runner:
+    driver: local
+
+networks:
+  homelan:
+    external: true
+
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'localhost'
+    container_name: ${WEB_CONTAINER_NAME}
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://localhost'
+    volumes:
+      - gitlab-etc_gitlab:/etc/gitlab
+      - gitlab-var_opt_gitlab:/var/opt/gitlab
+      - gitlab-var_log_gitlab:/var/log/gitlab
+    networks:
+      homelan:
+        ipv4_address: ${WEB_IPV4_ADDRESS}
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: ${RUNNER_CONTAINER_NAME}    
+    restart: always
+    depends_on:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - gitlab-runner_etc_gitlab-runner:/etc/gitlab-runner'
+    networks:
+      homelan:
+        ipv4_address: ${RUNNER_IPV4_ADDRESS}
+
+
