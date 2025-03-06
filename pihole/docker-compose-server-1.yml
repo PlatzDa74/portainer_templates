@@ -1,0 +1,31 @@
+# More info at https://github.com/pi-hole/docker-pi-hole/ and https://docs.pi-hole.net/
+networks:
+  homelan:
+    external: true
+
+services:
+  pihole:
+    container_name: pihole-1
+    image: pihole/pihole:latest
+    hostname: 'pihole-1.fritz.box'
+
+    environment:
+      TZ: 'Europe/Berlin'
+      FTLCONF_webserver_api_password: 'admin'
+      # If using Docker's default `bridge` network setting the dns listening mode should be set to 'all'
+      FTLCONF_dns_listeningMode: 'all'
+    volumes:
+      - /ssd/Pods/pihole-1/pihole/etc/pihole:/etc/pihole:Z
+      - /ssd/Pods/pihole-1/pihole/etc/dnsmasq.d:/etc/dnsmasq.d:Z
+    networks:
+      homelan:
+        ipv4_address: 192.168.178.13
+    cap_add:
+      # See https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
+      # Required if you are using Pi-hole as your DHCP server, else not needed
+      - NET_ADMIN
+      # Required if you are using Pi-hole as your NTP client to be able to set the host's system time
+      - SYS_TIME
+      # Optional, if Pi-hole should get some more processing time
+      - SYS_NICE
+    restart: unless-stopped

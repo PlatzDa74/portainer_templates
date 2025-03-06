@@ -1,8 +1,5 @@
-Lauffähiges Portainer custom template mit server und runner pod
+# Initial root Password
+Zu finden im Pod unter: /etc/gitlab/initial_root_password
 
-Server envs muessen noch angepasst werden, sowie compose file
+    podman exec gitlab-1 grep "^Password" /etc/gitlab/initial_root_password | awk '{print $NF}'
 
-Deafult user: admin
-Das default Password ist wohl in:/etc/gitlab/initial_root_password
-
-Password reset mit: https://docs.gitlab.com/ee/security/reset_user_password.html#reset-your-root-password

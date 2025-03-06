@@ -1,0 +1,40 @@
+version: '3.7'
+
+networks:
+  homelan:
+    external: true
+
+services:
+  web:
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'gitlab-test.fritz.box'
+    container_name: gitlab-test
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab-test.fritz.box:80'
+    volumes:
+      - /ssd/Pods/gitlab-1/web/etc/gitlab:/etc/gitlab
+      - /ssd/Pods/gitlab-1/web/var/opt/gitlab:/var/opt/gitlab
+      - /ssd/Pods/gitlab-1/web/var/log/gitlab:/var/log/gitlab
+    ports:
+      - "1080:80"
+      - "1022:22"
+    networks:
+      homelan:
+        ipv4_address: 192.168.178.211
+  gitlab-runner:
+    image: gitlab/gitlab-runner:alpine
+    container_name: gitlab-runner-test   
+    restart: always
+    depends_on:
+      - web
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /ssd/Pods/gitlab-1/gitlab-runner/etc/gitlab-runner:/etc/gitlab-runner
+    networks:
+      homelan:
+        ipv4_address: 192.168.178.212
+    ports:
+      - "2443:443"
+

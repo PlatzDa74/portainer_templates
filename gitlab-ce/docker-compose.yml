@@ -1,46 +1,43 @@
 version: '3.7'
 
-volumes:
-  gitlab-etc_gitlab:
-    driver: local
-  gitlab-var_opt_gitlab:
-    driver: local
-  gitlab-var_log_gitlab:
-    driver: local
-  gitlab-runner_etc_gitlab-runner:
-    driver: local
-
 networks:
   homelan:
+    name: homelan
     external: true
 
 services:
   web:
     image: 'gitlab/gitlab-ce:latest'
     restart: always
-    hostname: 'localhost'
-    container_name: ${WEB_CONTAINER_NAME}
+    hostname: 'gitlab-${GITLAB_SERVER_NR}.fritz.box'
+    container_name: gitlab-${GITLAB_SERVER_NR}
     environment:
+      GITLAB_SERVER_NR: ${GITLAB_SERVER_NR}
+      GITLAB_IP: ${GITLAB_IP}
       GITLAB_OMNIBUS_CONFIG: |
-        external_url 'http://localhost'
+        external_url 'http://gitlab-${GITLAB_SERVER_NR}.fritz.box:80'
     volumes:
-      - gitlab-etc_gitlab:/etc/gitlab
-      - gitlab-var_opt_gitlab:/var/opt/gitlab
-      - gitlab-var_log_gitlab:/var/log/gitlab
+      - /ssd/Pods/gitlab-${GITLAB_SERVER_NR}/web/etc/gitlab:/etc/gitlab
+      - /ssd/Pods/gitlab-${GITLAB_SERVER_NR}/web/var/opt/gitlab:/var/opt/gitlab
+      - /ssd/Pods/gitlab-${GITLAB_SERVER_NR}/web/var/log/gitlab:/var/log/gitlab
     networks:
       homelan:
-        ipv4_address: ${WEB_IPV4_ADDRESS}
+        ipv4_address: 192.168.178.${GITLAB_IP}1
+
   gitlab-runner:
     image: gitlab/gitlab-runner:alpine
-    container_name: ${RUNNER_CONTAINER_NAME}    
+    container_name: gitlab-runner-${GITLAB_SERVER_NR}
+    environment:
+      GITLAB_SERVER_NR: ${GITLAB_SERVER_NR}
+      GITLAB_IP: ${GITLAB_IP}
     restart: always
     depends_on:
       - web
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - gitlab-runner_etc_gitlab-runner:/etc/gitlab-runner'
+      - /ssd/Pods/gitlab-${GITLAB_SERVER_NR}/gitlab-runner/etc/gitlab-runner:/etc/gitlab-runner
     networks:
       homelan:
-        ipv4_address: ${RUNNER_IPV4_ADDRESS}
+        ipv4_address: 192.168.178.${GITLAB_IP}2
 
 

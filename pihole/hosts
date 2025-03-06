@@ -1,0 +1,17 @@
+owncloud-1.fritz.box	    192.168.178.10	
+owncloud-2.fritz.box	    192.168.178.20	
+
+gitlab-1.fritz.box	        192.168.178.11	
+gitlab-2.fritz.box	        192.168.178.21	
+
+gitlab-runner-1.fritz.box	192.168.178.12	
+gitlab-runner-2.fritz.box	192.168.178.22	
+
+pihole-1.fritz.box	        192.168.178.13	
+pihole-2.fritz.box	        192.168.178.23
+
+ldap-1.fritz.box            192.168.178.14
+ldap-2.fritz.box            192.168.178.24
+
+tower-1.fritz.box           192.168.178.15
+tower-2.fritz.box           192.168.178.25
