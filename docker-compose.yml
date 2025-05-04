@@ -1,0 +1,60 @@
+services:
+  gitlab-ce:
+    image: gitlab/gitlab-ce:latest
+    hostname: gitlab.fritz.box
+    container_name: gitlab-ce
+    environment:
+      GITLAB_ROOT_PASSWORD: 'git1ab-pass'
+      GITLAB_OMNIBUS_CONFIG: |
+        letsencrypt['enable'] = false
+        external_url 'https://gitlab.fritz.box'
+        
+        nginx['enable'] = true
+        nginx['client_max_body_size'] = '250m'
+        nginx['redirect_http_to_https'] = true
+        nginx['redirect_http_to_https_port'] = 80
+        nginx['ssl_certificate'] = "/etc/gitlab/ssl/Gitlab.crt"
+        nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/Gitlab.pem"
+        nginx['listen_addresses'] = ['*', '[::]']
+        nginx['gzip_enabled'] = true
+        nginx['listen_port'] = 443
+        nginx['listen_https'] = true
+
+        registry_external_url 'https://registry.gitlab.fritz.box:5005'
+        registry_nginx['ssl_certificate'] = "/etc/gitlab/ssl/Registry.crt"
+        registry_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/Registry.pem"
+        registry['enable'] = true
+        
+        gitlab_rails['lfs_enabled'] = true
+        gitlab_rails['gitlab_shell_ssh_port'] = 2222
+        gitlab_rails['pipeline_schedule_worker_cron'] = "*/10 * * * *"
+    ports:
+      - '443:443'
+      - '80:80'
+      - '2222:22'
+      - '5005:5005'
+    networks:
+        - gitlab-network
+    volumes:
+      - /ssd/docker-containers/gitlab-ce/gitlab-config:/etc/gitlab
+      - /ssd/docker-containers/gitlab-ce/gitlab-data:/var/opt/gitlab
+      - /ssd/docker-containers/gitlab-ce/gitlab-log:/var/log/gitlab
+      - /ssd/docker-containers/gitlab-ce/certs:/etc/gitlab/ssl:ro
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    restart: always
+    container_name: gitlab-runner
+    hostname: gitlab-runner.fritz.box
+    depends_on:
+      - gitlab-ce
+    volumes:
+     - /ssd/docker-containers/gitlab-ce/runner-etc:/etc/gitlab-runner
+     - /ssd/docker-containers/gitlab-ce/certs:/etc/gitlab-runner/certs:ro
+     - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+        - gitlab-network
+
+networks:
+  gitlab-network:
+    name: gitlab-network
